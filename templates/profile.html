@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Profil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center text-primary mb-4">Profil</h1>
+    <form method="POST" action="{{ url_for('user.profile') }}" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="bio" class="form-label">Bio</label>
+            <textarea class="form-control" id="bio" name="bio" rows="3">{{ bio }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="profile_picture" class="form-label">Profilbild</label>
+            <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept=".png, .jpg, .jpeg, .gif">
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Uppdatera profil</button>
+        </div>
+    </form>
+    {% if profile_picture %}
+        <div class="mb-3">
+            <img src="{{ url_for('static', filename=profile_picture) }}" class="img-fluid" alt="Profilbild">
+        </div>
+    {% endif %}
+    <div class="mb-3">
+        <h2>Balance</h2>
+        <p>{{ balance }}</p>
+    </div>
+</div>
+{% endblock %}

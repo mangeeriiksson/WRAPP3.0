@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Välkommen till WRAPP 3.0{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('home') }}">Välkommen till WRAPP 3.0</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Startsida</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('products_blueprint.shop') }}">Shop</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('cart_blueprint.view_cart') }}"><i class="bi bi-cart"></i> Varukorg</a></li>
+
+                    {% if 'user_token' in session %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logga ut</a></li>
+                        {% if session['role'] == 'admin' %}
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.admin_panel') }}">Admin</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('products_blueprint.add_product_view') }}">Lägg till produkt</a></li>
+                        {% endif %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('user.profile') }}">Profil</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('user.order_status') }}">Orderstatus</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Logga in</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

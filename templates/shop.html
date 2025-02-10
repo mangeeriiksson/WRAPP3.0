@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Välkommen till WRAPP 3.0{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('home') }}">Välkommen till WRAPP 3.0</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Startsida</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('products_blueprint.shop') }}">Shop</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('cart_blueprint.view_cart') }}"><i class="bi bi-cart"></i> Varukorg</a></li>
+                    {% if 'user_token' in session %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logga ut</a></li>
+                        {% if session['role'] == 'admin' %}
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.admin_panel') }}">Admin</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ url_for('products_blueprint.add_product_view') }}">Lägg till produkt</a></li>
+                        {% endif %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('user.profile') }}">Profil</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('user.order_status') }}">Orderstatus</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Logga in</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="text-center text-primary mb-4">Shop</h1>
+        
+        <!-- Sökfält för produkter -->
+        <div class="text-center mt-4">
+            <form method="GET" action="{{ url_for('products_blueprint.search') }}">
+                <input type="text" name="query" placeholder="Sök efter produkter..." class="form-control w-50 d-inline">
+                <button type="submit" class="btn btn-primary">Sök</button>
+            </form>
+        </div>
+
+        <div class="row mt-4">
+            {% for product in products %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        {% if product['image'] %}
+                            <img src="{{ url_for('static', filename='images/' + product['image']) }}" class="card-img-top" alt="{{ product['name'] }}">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/default.png') }}" class="card-img-top" alt="{{ product['name'] }}">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product['name'] }}</h5>
+                            <p class="card-text">{{ product['description'] }}</p>
+                            <p class="text-success"><strong>{{ product['price'] }} SEK</strong></p>
+                            <form action="{{ url_for('cart_blueprint.add_to_cart') }}" method="POST" onsubmit="redirectToCart(event)">
+                                <input type="hidden" name="product_id" value="{{ product['id'] }}">
+                                <input type="hidden" name="price" value="{{ product['price'] }}">
+                                <button type="submit" class="btn btn-primary">
+                                    Lägg till i kundvagn
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-4">
+            <a class="btn btn-secondary btn-lg shadow-sm" href="{{ url_for('cart_blueprint.view_cart') }}">
+                <i class="bi bi-cart"></i> Visa kundvagn
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function redirectToCart(event) {
+            event.preventDefault();  // Förhindra sidladdning
+            let form = event.target;
+            let formData = new FormData(form);
+
+            fetch(form.action, {
+                method: form.method,
+                body: formData
+            })
+            .then(response => response.json())  // Förväntar sig en JSON-respons
+            .then(data => {
+                if (data.success) {
+                    window.location.href = "{{ url_for('cart_blueprint.view_cart') }}";  // Omdirigera till kundvagn istället för checkout
+                } else {
+                    alert("Kunde inte lägga till produkten. Försök igen.");
+                }
+            })
+            .catch(error => console.error("Fel vid läggning i kundvagn:", error));
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

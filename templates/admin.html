@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center text-primary mb-4">Admin Portal</h1>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Användare</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Användarnamn</th>
+                        <th>Lösenord</th>
+                        <th>E-post</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user[0] }}</td>
+                            <td>{{ user[1] }}</td>
+                            <td>{{ user[2] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h2>Produkter</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Namn</th>
+                        <th>Pris</th>
+                        <th>Beskrivning</th>
+                        <th>Bild</th>
+                        <th>Åtgärder</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>{{ product[1] }}</td>
+                            <td>{{ product[2] }}</td>
+                            <td>{{ product[3] }}</td>
+                            <td>{{ product[4] }}</td>
+                            <td>
+                                <a href="{{ url_for('update_product', product_id=product[0]) }}" class="btn btn-primary">Uppdatera</a>
+                                <form method="POST" action="{{ url_for('delete_product', product_id=product[0]) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger">Ta bort</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Lägg till pengar för admin -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h2>Lägg till pengar</h2>
+            <form method="POST" action="{{ url_for('admin.infinite_money') }}">
+                <div class="form-group">
+                    <label for="amount">Belopp:</label>
+                    <input type="text" class="form-control" id="amount" name="amount" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Lägg till pengar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lägg till pengar till annan användare -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h2>Lägg till pengar till annan användare</h2>
+            <form id="addMoneyForm">
+                <div class="form-group">
+                    <label for="username">Användarnamn:</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Belopp:</label>
+                    <input type="text" class="form-control" id="amount_user" name="amount" required>
+                </div>
+                <button type="button" class="btn btn-success mt-2" onclick="addMoneyToUser()">Lägg till pengar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Nollställ allas balans (Endast för admin) -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h2>Nollställ allas balans</h2>
+            <button class="btn btn-danger" onclick="resetAllBalances()">Nollställ Allas Balans</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function addMoneyToUser() {
+    const username = document.getElementById("username").value;
+    const amount = document.getElementById("amount_user").value;
+
+    if (!username || !amount) {
+        alert("Ange både användarnamn och belopp.");
+        return;
+    }
+
+    fetch('/admin/add_money', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, amount })
+    })
+    .then(response => response.json())
+    .then(data => alert(data.message || data.error))
+    .catch(error => console.error('Fel:', error));
+}
+
+function resetAllBalances() {
+    if (!confirm("Är du säker på att du vill nollställa balansen för ALLA användare?")) return;
+
+    fetch('/admin/reset_all_balances', {  
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => alert(data.message || data.error))
+    .catch(error => console.error('Fel:', error));
+}
+</script>
+
+{% endblock %}

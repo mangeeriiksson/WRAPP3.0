@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Köpet slutfört{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center text-success">Ditt köp är slutfört!</h1>
+    <p class="text-center">Tack för ditt köp! Ditt saldo har uppdaterats.</p>
+    <div class="text-center">
+        <a href="{{ url_for('products_blueprint.shop') }}" class="btn btn-primary">Fortsätt handla</a>
+        <a href="{{ url_for('user.order_status') }}" class="btn btn-secondary">Se din orderstatus</a>
+    </div>
+</div>
+{% endblock %}

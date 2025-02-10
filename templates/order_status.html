@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Orderstatus{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center text-primary mb-4">Orderstatus</h1>
+    <form method="POST" action="{{ url_for('user.order_status') }}">
+        <div class="mb-3">
+            <label for="order_id" class="form-label">Order ID</label>
+            <input type="text" class="form-control" id="order_id" name="order_id" required>
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Kontrollera status</button>
+        </div>
+    </form>
+    {% if result %}
+        <div class="alert alert-success" role="alert">
+            {{ result }}
+        </div>
+    {% endif %}
+    {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+    {% endif %}
+    <h2>Dina ordrar</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Användare</th>
+                <th>Produkt</th>
+                <th>Kvantitet</th>
+                <th>Tidpunkt</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in user_orders %}
+                <tr>
+                    <td>{{ order[0] }}</td>
+                    <td>{{ order[1] }}</td>
+                    <td>{{ order[2] }}</td>
+                    <td>{{ order[3] }}</td>
+                    <td>{{ order[4] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

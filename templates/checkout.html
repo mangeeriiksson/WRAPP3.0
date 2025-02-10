@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center text-primary mb-4">Kassa</h1>
+    {% if cart %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Produkt</th>
+                    <th>Pris</th>
+                    <th>Kvantitet</th>
+                    <th>Totalt</th>
+                    <th>Åtgärd</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.price }} SEK</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.price * item.quantity }} SEK</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('cart_blueprint.remove_from_cart') }}">
+                                <input type="hidden" name="product_id" value="{{ item.id }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Ta bort</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="text-right">
+            <h4>Subtotal: <strong>{{ subtotal }} SEK</strong></h4>
+            {% if discount > 0 %}
+                <h4>Discount: <strong>-{{ discount * 100 }}%</strong></h4>
+            {% endif %}
+            <h3>Total: <strong>{{ total_price }} SEK</strong></h3>
+        </div>
+
+        {% if used_coupons %}
+        <div class="text-center mt-3">
+            <h5>Använda kuponger:</h5>
+            <ul class="list-group w-50 mx-auto">
+                {% for coupon in used_coupons %}
+                    <li class="list-group-item">{{ coupon }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="text-center mt-4">
+            <h4>Lägg till rabattkod</h4>
+            <form method="POST" action="{{ url_for('cart_blueprint.apply_coupon') }}" class="mb-3">
+                <input type="text" name="coupon_code" class="form-control w-50 mx-auto" placeholder="Ange rabattkod" required>
+                <button type="submit" class="btn btn-primary mt-2">Använd rabattkod</button>
+            </form>
+        </div>
+
+        <div class="text-center mt-4">
+            {% if session.get('balance', 0) >= total_price %}
+                <form method="POST" action="{{ url_for('cart_blueprint.checkout') }}">
+                    <button type="submit" class="btn btn-success">Slutför köp</button>
+                </form>
+            {% else %}
+                <p class="text-danger">Du har inte tillräckligt med saldo för att slutföra köpet.</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <p class="text-center text-muted">Din kundvagn är tom.</p>
+    {% endif %}
+</div>
+{% endblock %}
